@@ -7,6 +7,7 @@ Schemagen is a schema generator tool that converts Oracle Databases Schemas into
 ## Install
 
 ```zsh
+go get github.com/azratul/graphql-schema-generator
 go install github.com/azratul/graphql-schema-generator
 ```
 
