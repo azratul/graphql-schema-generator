@@ -16,10 +16,10 @@ var user *string
 var password *string
 
 func init(){
-    dsn = flag.String("dsn", "", "Data source name\nEx:\n\tgraphql-schema-generator -dsn=\"(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL={PROTOCOL})(HOST={HOST})(PORT={PORT}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={SERVICE_NAME})))\"")
-    entities = flag.String("entities", "", "Array of entities(comma separated)\nEx:\n\tgraphql-schema-generator -entities=table1,table2,table3")
-    user = flag.String("user", "", "Database user\nEx:\n\tgraphql-schema-generator -user=\"DB_USER\"")
-    password = flag.String("password", "", "Database password\nEx:\n\tgraphql-schema-generator -password=\"PASSWORD1234\"")
+    dsn = flag.String("dsn", "", "Data source name\nEx:\n\t-dsn=\"(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL={PROTOCOL})(HOST={HOST})(PORT={PORT}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={SERVICE_NAME})))\"")
+    entities = flag.String("entities", "", "Array of entities(comma separated)\nEx:\n\t-entities=table1,table2,table3")
+    user = flag.String("user", "", "Database user\nEx:\n\t-user=\"DB_USER\"")
+    password = flag.String("password", "", "Database password\nEx:\n\t-password=\"PASSWORD1234\"")
 
     flag.Parse()
 
