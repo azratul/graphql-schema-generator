@@ -7,33 +7,41 @@ import (
     "strings"
     "database/sql"
 
+    //Oracle
     _ "github.com/godror/godror"
+    //Postgres
+    _ "github.com/lib/pq"
+    //MySQL
+    _ "github.com/go-sql-driver/mysql"
 )
 
 var dsn *string
 var entities *string
-var user *string
-var password *string
+var schema *string
+var motor *string
 
 func init(){
-    dsn = flag.String("dsn", "", "Data source name\nEx:\n\t-dsn=\"(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL={PROTOCOL})(HOST={HOST})(PORT={PORT}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={SERVICE_NAME})))\"")
+    dsn = flag.String("dsn", "", "Data source name\nEx:\n\t-dsn=\"{USER}/{PASSWORD}@(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL={PROTOCOL})(HOST={HOST})(PORT={PORT}))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={SERVICE_NAME})))\"")
     entities = flag.String("entities", "", "Array of entities(comma separated)\nEx:\n\t-entities=table1,table2,table3")
-    user = flag.String("user", "", "Database user\nEx:\n\t-user=\"DB_USER\"")
-    password = flag.String("password", "", "Database password\nEx:\n\t-password=\"PASSWORD1234\"")
+    motor = flag.String("motor", "", "Database motor\nEx:\n\t-motor=\"oracle\"")
+    schema = flag.String("schema", "", "Database schema (For oracle you should use the owner of the schema)\nEx:\n\t-schema=\"SCHEMA_OWNER\"")
 
     flag.Parse()
 
     if *dsn == "" ||
        *entities == "" ||
-       *user == "" ||
-       *password == "" {
-        log.Println("DSN or Entities aren't defined!")
+       *motor == "" {
+        log.Println("DSN, Entities or Motor aren't defined!")
         os.Exit(2)
+    }
+
+    if *motor == "oracle" {
+        *motor = "godror"
     }
 }
 
 func main() {
-    db, err := sql.Open("godror", *user + "/" + *password + *dsn)
+    db, err := sql.Open(*motor, *dsn)
 
     if err != nil {
         log.Fatalf("Error: %s", err)
@@ -41,7 +49,7 @@ func main() {
 
     enttsarray := strings.Split(*entities, ",")
 
-    *user = strings.TrimSpace(*user)
+    *schema = strings.TrimSpace(*schema)
 
     data := makeSchemas(db, enttsarray)
     Write(data)
@@ -49,7 +57,22 @@ func main() {
 
 func makeSchemas(db *sql.DB, entities []string) string {
     var data string
-    stm, err := db.Prepare(`SELECT COLUMN_NAME, DATA_TYPE, NULLABLE FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=:1 AND OWNER=:2 ORDER BY COLUMN_ID`)
+    var query string
+
+    if *motor == "godror" {
+        // oracle
+        query = `SELECT COLUMN_NAME, DATA_TYPE, NULLABLE FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=:1 AND OWNER=:2 ORDER BY COLUMN_ID`
+    } else {
+        // postgres or mysql
+        bind := [2]string{"?", "?"}
+        if *motor == "postgres" {
+            bind = [2]string{"$1", "$2"}
+        }
+
+        query = `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=` + bind[0] + ` AND TABLE_SCHEMA=` + bind[1] + ``;
+    }
+
+    stm, err := db.Prepare(query)
 
     if err != nil {
         log.Println(err)
@@ -57,7 +80,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
     for _, x := range entities {
         entity := strings.TrimSpace(x)
-        rows, err := stm.Query(entity, *user)
+        rows, err := stm.Query(entity, *schema)
         if err != nil {
             log.Fatalf("Query error: %s",err)
         }
@@ -77,13 +100,15 @@ func makeSchemas(db *sql.DB, entities []string) string {
             if  data_type == "VARCHAR" ||
                 data_type == "VARCHAR2" ||
                 data_type == "CHAR" ||
+                data_type == "DATE" ||
+                data_type == "DATETIME" ||
                 data_type == "TEXT" {
                 data_type = "String"
             } else {
                 data_type = "Int"
             }
 
-            if nullable == "N" {
+            if nullable == "N" || nullable == "NO" {
                 data_type += "!"
             }
 
