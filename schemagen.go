@@ -57,6 +57,7 @@ func main() {
 
 func makeSchemas(db *sql.DB, entities []string) string {
     var data string
+    var type_query string
     var query string
     var scalar bool
 
@@ -86,6 +87,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
             log.Fatalf("Query error: %s",err)
         }
         defer rows.Close()
+
+        type_query += "    get" + strings.Title(strings.ToLower(entity)) + ": [" + strings.Title(strings.ToLower(entity)) + "]"
 
         data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
         for rows.Next() {
@@ -121,6 +124,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         data += "}\n\n"
     }
+
+    data += "type Query {\n" + type_query + "\n}"
 
     if scalar {
         data += "scalar Time"
