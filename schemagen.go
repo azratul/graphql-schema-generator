@@ -125,7 +125,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
         data += "}\n\n"
     }
 
-    data += "type Query {\n" + type_query + "\n}"
+    data += "type Query {\n" + type_query + "\n}\n\n"
 
     if scalar {
         data += "scalar Time"
