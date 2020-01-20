@@ -58,10 +58,11 @@ func main() {
 func makeSchemas(db *sql.DB, entities []string) string {
     var data string
     var query string
+    var scalar bool
 
     if *motor == "godror" {
         // oracle
-        query = `SELECT COLUMN_NAME, DATA_TYPE, NULLABLE FROM ALL_TAB_COLUMNS WHERE TABLE_NAME=:1 AND OWNER=:2 ORDER BY COLUMN_ID`
+        query = `SELECT COLUMN_NAME, DATA_TYPE, NULLABLE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
     } else {
         // postgres or mysql
         bind := [2]string{"?", "?"}
@@ -100,10 +101,12 @@ func makeSchemas(db *sql.DB, entities []string) string {
             if  data_type == "VARCHAR" ||
                 data_type == "VARCHAR2" ||
                 data_type == "CHAR" ||
-                data_type == "DATE" ||
-                data_type == "DATETIME" ||
                 data_type == "TEXT" {
                 data_type = "String"
+            } else if data_type == "DATE" ||
+                data_type == "DATETIME" {
+                data_type = "Time"
+                scalar = true
             } else {
                 data_type = "Int"
             }
@@ -117,6 +120,10 @@ func makeSchemas(db *sql.DB, entities []string) string {
             data += "    " + column_name + ": " + data_type + "\n"
         }
         data += "}\n\n"
+    }
+
+    if scalar {
+        data += "scalar Time"
     }
 
     return data
