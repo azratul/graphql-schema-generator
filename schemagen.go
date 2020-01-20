@@ -88,7 +88,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-        type_query += "    get" + strings.Title(strings.ToLower(entity)) + ": [" + strings.Title(strings.ToLower(entity)) + "]"
+        type_query += "    get" + strings.Title(strings.ToLower(entity)) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
 
         data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
         for rows.Next() {
