@@ -118,7 +118,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
                 data_type += "!"
             }
 
-            data += "    " + column_name + ": " + data_type + "\n"
+            data += "    " + strings.ToLower(column_name) + ": " + data_type + "\n"
         }
         data += "}\n\n"
     }
