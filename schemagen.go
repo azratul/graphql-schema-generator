@@ -88,7 +88,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-        type_query += "    get" + strings.Title(strings.ToLower(entity)) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
+        type_query += "    get_" + strings.ToLower(entity) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
 
         data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
         for rows.Next() {
@@ -110,6 +110,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
                 data_type == "DATETIME" {
                 data_type = "Time"
                 scalar = true
+            } else if data_type == "BOOLEAN" {
+                data_type = "Boolean"
             } else {
                 data_type = "Int"
             }
