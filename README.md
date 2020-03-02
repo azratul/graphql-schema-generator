@@ -22,7 +22,7 @@ graphql-schema-generator -h
 Oracle:
 
 ```zsh
-graphql-schema-generator -motor="oracle" -schema="SCHEMA_OWNER" -dsn="DB_USER/DB_PASSWORD(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL=TCP)(HOST=DB_HOST)(PORT=DB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=db.orcl.com)))" -entities=TABLE1,TABLE2,TABLE3
+graphql-schema-generator -motor="oracle" -schema="SCHEMA_OWNER" -dsn="DB_USER/DB_PASSWORD@(DESCRIPTION=(LOAD_BALANCE=ON)(FAILOVER=ON)(ADDRESS=(PROTOCOL=TCP)(HOST=DB_HOST)(PORT=DB_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=db.orcl.com)))" -entities=TABLE1,TABLE2,TABLE3
 ```
 
 Postgres:
