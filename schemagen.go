@@ -5,6 +5,7 @@ import (
     "log"
     "os"
     "strings"
+    "strconv"
     "database/sql"
 
     //Oracle
@@ -63,7 +64,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
     if *motor == "godror" {
         // oracle
-        query = `SELECT COLUMN_NAME, DATA_TYPE, NULLABLE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
+        query = `SELECT COLUMN_NAME, DATA_TYPE, DATA_SCALE, NULLABLE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
     } else {
         // postgres or mysql
         bind := [2]string{"?", "?"}
@@ -71,7 +72,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
             bind = [2]string{"$1", "$2"}
         }
 
-        query = `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=` + bind[0] + ` AND TABLE_SCHEMA=` + bind[1] + ``;
+        query = `SELECT COLUMN_NAME, DATA_TYPE, NUMERIC_SCALE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=` + bind[0] + ` AND TABLE_SCHEMA=` + bind[1] + ``;
     }
 
     stm, err := db.Prepare(query)
@@ -94,8 +95,9 @@ func makeSchemas(db *sql.DB, entities []string) string {
         for rows.Next() {
             var column_name string
             var data_type string
+            var data_scale []byte
             var nullable string
-            if err := rows.Scan(&column_name, &data_type, &nullable); err != nil {
+            if err := rows.Scan(&column_name, &data_type, &data_scale, &nullable); err != nil {
                 log.Fatalf("Scan error: %s",err)
             }
 
@@ -113,7 +115,13 @@ func makeSchemas(db *sql.DB, entities []string) string {
             } else if data_type == "BOOLEAN" {
                 data_type = "Boolean"
             } else {
-                data_type = "Int"
+                i, _ := strconv.Atoi(string(data_scale))
+
+                if i > 0 {
+                    data_type = "Float"
+                } else {
+                    data_type = "Int"
+                }
             }
 
             if nullable == "N" || nullable == "NO" {
