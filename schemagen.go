@@ -58,7 +58,9 @@ func main() {
 
 func makeSchemas(db *sql.DB, entities []string) string {
     var data string
+    var data2 string
     var type_query string
+    var type_mutation string
     var query string
     var scalar bool
 
@@ -90,6 +92,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
         defer rows.Close()
 
         type_query += "    get_" + strings.ToLower(entity) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
+	type_mutation += "    create_" + strings.ToLower(entity) + "(input: In_" + strings.ToLower(entity) + " ): " + strings.Title(strings.ToLower(entity)) + "\n"
+	type_mutation += "    update_" + strings.ToLower(entity) + "(input: In_" + strings.ToLower(entity) + "): " + strings.Title(strings.ToLower(entity)) + "\n"
 
         data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
         for rows.Next() {
@@ -133,7 +137,12 @@ func makeSchemas(db *sql.DB, entities []string) string {
         data += "}\n\n"
     }
 
-    data += "type Query {\n" + type_query + "\n}\n\n"
+    data2 += strings.Replace(data, "type ", "input In", -1)
+
+    data += data2
+
+    data += "type Query {\n" + type_query + "}\n\n"
+    data += "type Mutation {\n" + type_mutation + "}\n\n"
 
     if scalar {
         data += "scalar Time"
