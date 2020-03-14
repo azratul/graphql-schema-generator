@@ -92,8 +92,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
         defer rows.Close()
 
         type_query += "    get_" + strings.ToLower(entity) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
-	type_mutation += "    create_" + strings.ToLower(entity) + "(input: In_" + strings.ToLower(entity) + " ): " + strings.Title(strings.ToLower(entity)) + "\n"
-	type_mutation += "    update_" + strings.ToLower(entity) + "(input: In_" + strings.ToLower(entity) + "): " + strings.Title(strings.ToLower(entity)) + "\n"
+	type_mutation += "    create_" + strings.ToLower(entity) + "(input: In" + strings.Title(strings.ToLower(entity)) + " ): " + strings.Title(strings.ToLower(entity)) + "\n"
+	type_mutation += "    update_" + strings.ToLower(entity) + "(input: In" + strings.Title(strings.ToLower(entity)) + "): " + strings.Title(strings.ToLower(entity)) + "\n"
 
         data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
         for rows.Next() {
@@ -152,7 +152,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 }
 
 func Write(data string) {
-    f, err := os.OpenFile("schema.graphql", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0600)
+    f, err := os.OpenFile("schema.graphqls", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0600)
 
     if err != nil {
         log.Fatalf("Opening file error: %s", err)
