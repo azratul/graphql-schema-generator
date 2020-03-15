@@ -92,9 +92,9 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-	type_query    += "    get"    + entityTitle + "(input: In" + entityTitle + "): [" + entityTitle + "]\n"
+	type_query    += "    get"    + entityTitle + "(filter: Filter" + entityTitle + "): [" + entityTitle + "]\n"
 	type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
-	type_mutation += "    update" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
+	type_mutation += "    update" + entityTitle + "(input: In" + entityTitle + ", filter: Filter" + entityTitle + "): "  + entityTitle + "\n"
 
         data += "type " + entityTitle + " {\n"
         for rows.Next() {
@@ -138,8 +138,10 @@ func makeSchemas(db *sql.DB, entities []string) string {
         data += "}\n\n"
     }
 
-    data2 += strings.Replace(data, "type ", "input In", -1)
-
+    data2 = strings.Replace(data, "type ", "input In", -1)
+    data += data2
+    data2 = strings.Replace(data2, "input In", "input Filter", -1)
+    data2 = strings.Replace(data2, "!", "", -1)
     data += data2
 
     data += "type Query {\n" + type_query + "}\n\n"
