@@ -91,11 +91,13 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-        type_query += "    get_" + strings.ToLower(entity) + ": [" + strings.Title(strings.ToLower(entity)) + "]\n"
-	type_mutation += "    create_" + strings.ToLower(entity) + "(input: In" + strings.Title(strings.ToLower(entity)) + " ): " + strings.Title(strings.ToLower(entity)) + "\n"
-	type_mutation += "    update_" + strings.ToLower(entity) + "(input: In" + strings.Title(strings.ToLower(entity)) + "): " + strings.Title(strings.ToLower(entity)) + "\n"
+	entityTitle := strings.Title(strings.ToLower(entity))
 
-        data += "type " + strings.Title(strings.ToLower(entity)) + " {\n"
+	type_query    += "    get"    + entityTitle + "(input: In" + entityTitle + "): [" + entityTitle + "]\n"
+	type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
+	type_mutation += "    update" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
+
+        data += "type " + entityTitle + " {\n"
         for rows.Next() {
             var column_name string
             var data_type string
