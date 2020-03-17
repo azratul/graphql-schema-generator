@@ -90,10 +90,10 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-	querySelect  = "SELECT "
-	queryInsert  = "INSERT INTO " + entity + "("
+	querySelect  = entity + ":SELECT "
+	queryInsert  = entity + ":INSERT INTO " + entity + "("
 	queryInsert2 = ""
-	queryUpdate  = "UPDATE " + entity + " SET "
+	queryUpdate  = entity + ":UPDATE " + entity + " SET "
         for rows.Next() {
             var column_name string
             if err := rows.Scan(&column_name); err != nil {
