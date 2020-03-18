@@ -66,7 +66,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
     if *motor == "godror" {
         // oracle
-        query = `SELECT COLUMN_NAME, DATA_TYPE, DATA_SCALE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
+        query = `SELECT COLUMN_NAME, DATA_TYPE, DATA_SCALE, NULLABLE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
     } else {
         // postgres or mysql
         bind := [2]string{"?", "?"}
@@ -74,7 +74,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
             bind = [2]string{"$1", "$2"}
         }
 
-        query = `SELECT COLUMN_NAME, DATA_TYPE, NUMERIC_SCALE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=` + bind[0] + ` AND TABLE_SCHEMA=` + bind[1] + ``;
+        query = `SELECT COLUMN_NAME, DATA_TYPE, NUMERIC_SCALE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=` + bind[0] + ` AND TABLE_SCHEMA=` + bind[1] + ``;
     }
 
     stm, err := db.Prepare(query)
@@ -92,14 +92,15 @@ func makeSchemas(db *sql.DB, entities []string) string {
         defer rows.Close()
 
 	querySelect = entity + ":SELECT "
-	queryInsert = entity + ":INSERT INTO " + entity + "(_COLUMNS_) VALUES (_VALUES_)"
-	queryUpdate = entity + ":UPDATE " + entity + " SET _SET_ WHERE 1=1 "
+	queryInsert = entity + ":INSERT INTO " + entity + "(%s) VALUES (%s)"
+	queryUpdate = entity + ":UPDATE " + entity + " SET %s WHERE 1=1 "
 	definition  = entity + ":DEFINITION:"
         for rows.Next() {
             var column_name string
             var data_type string
             var data_scale []byte
-            if err := rows.Scan(&column_name, &data_type, &data_scale); err != nil {
+            var nullable string
+            if err := rows.Scan(&column_name, &data_type, &data_scale, &nullable); err != nil {
                 log.Fatalf("Scan error: %s",err)
             }
 
@@ -136,7 +137,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 	        title = strings.Replace(title," ","",-1)
             }
 
-	    definition += title + "," + column_name + "," + data_type + ";"
+	    definition += title + "," + column_name + "," + data_type + "," + nullable + ";"
         }
 	querySelect  = strings.TrimRight(querySelect, ",")
 	definition   = strings.TrimRight(definition, ";")
