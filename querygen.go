@@ -61,7 +61,6 @@ func makeSchemas(db *sql.DB, entities []string) string {
     var query string
     var querySelect  string
     var queryInsert  string
-    var queryInsert2 string
     var queryUpdate  string
     var definition   string
 
@@ -92,11 +91,10 @@ func makeSchemas(db *sql.DB, entities []string) string {
         }
         defer rows.Close()
 
-	querySelect  = entity + ":SELECT "
-	queryInsert  = entity + ":INSERT INTO " + entity + "("
-	queryInsert2 = ""
-	queryUpdate  = entity + ":UPDATE " + entity + " SET "
-	definition   = entity + ":DEFINITION:"
+	querySelect = entity + ":SELECT "
+	queryInsert = entity + ":INSERT INTO " + entity + "(_COLUMNS_) VALUES (_VALUES_)"
+	queryUpdate = entity + ":UPDATE " + entity + " SET _SET_ WHERE 1=1 "
+	definition  = entity + ":DEFINITION:"
         for rows.Next() {
             var column_name string
             var data_type string
@@ -128,8 +126,6 @@ func makeSchemas(db *sql.DB, entities []string) string {
             }
 
 	    querySelect  += column_name + ","
-	    queryInsert2 += ":" + column_name + ","
-	    queryUpdate  += column_name + " = :" + strings.ToLower(column_name) + ","
 	    title := ""
 
             if strings.ToUpper(column_name) == "ID" || strings.ToUpper(column_name) == "URL" {
@@ -143,11 +139,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
 	    definition += title + "," + column_name + "," + data_type + ";"
         }
 	querySelect  = strings.TrimRight(querySelect, ",")
-	queryInsert2 = strings.TrimRight(queryInsert2, ",")
-	queryInsert += strings.Replace(queryInsert2, ":", "", -1)
-	queryUpdate  = strings.TrimRight(queryUpdate, ",")
 	definition   = strings.TrimRight(definition, ";")
-        data += querySelect + " FROM " + entity + " WHERE 1=1\n" + queryInsert + ") VALUES (" + strings.ToLower(queryInsert2) + ")\n" + queryUpdate + " WHERE 1=1\n" + definition + "\n\n"
+        data += querySelect + " FROM " + entity + " WHERE 1=1\n" + queryInsert + "\n" + queryUpdate + "\n" + definition + "\n\n"
     }
 
     return data
