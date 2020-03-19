@@ -94,7 +94,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
 	type_query    += "    get"    + entityTitle + "(filter: Filter" + entityTitle + "): [" + entityTitle + "]\n"
 	type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
-	type_mutation += "    update" + entityTitle + "(input: In" + entityTitle + ", filter: Filter" + entityTitle + "): "  + entityTitle + "\n"
+	type_mutation += "    update" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): "  + entityTitle + "\n"
 
         data += "type " + entityTitle + " {\n"
         for rows.Next() {
