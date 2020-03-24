@@ -129,12 +129,18 @@ func makeSchemas(db *sql.DB, entities []string) string {
 	    querySelect  += column_name + ","
 	    title := ""
 
-            if strings.ToUpper(column_name) == "ID" || strings.ToUpper(column_name) == "URL" || strings.HasPrefix(strings.ToUpper(column_name), "ID_") {
+            if strings.ToUpper(column_name) == "ID" || strings.ToUpper(column_name) == "URL" {
 		title = strings.ToUpper(column_name)
             } else {
 	        title = strings.Replace(strings.ToLower(column_name),"_"," ",-1)
 	        title = strings.Title(title)
 	        title = strings.Replace(title," ","",-1)
+                if(strings.HasPrefix(strings.ToUpper(column_name), "URL_")){
+                   title = strings.Replace(title, "Url", "URL", 1)
+                }
+                if(strings.HasPrefix(strings.ToUpper(column_name), "ID_")){
+                   title = strings.Replace(title, "Id", "ID", 1)
+                }
             }
 
 	    definition += title + "," + column_name + "," + data_type + "," + nullable + ";"
