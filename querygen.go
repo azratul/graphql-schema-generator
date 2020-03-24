@@ -129,7 +129,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 	    querySelect  += column_name + ","
 	    title := ""
 
-            if strings.ToUpper(column_name) == "ID" || strings.ToUpper(column_name) == "URL" {
+            if strings.ToUpper(column_name) == "ID" || strings.ToUpper(column_name) == "URL" || strings.HasPrefix(strings.ToUpper(column_name), "ID_") {
 		title = strings.ToUpper(column_name)
             } else {
 	        title = strings.Replace(strings.ToLower(column_name),"_"," ",-1)
