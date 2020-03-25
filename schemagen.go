@@ -110,6 +110,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
             if  data_type == "VARCHAR" ||
                 data_type == "VARCHAR2" ||
+                data_type == "NVARCHAR" ||
+                data_type == "NVARCHAR2" ||
                 data_type == "CHAR" ||
                 data_type == "TEXT" {
                 data_type = "String"
