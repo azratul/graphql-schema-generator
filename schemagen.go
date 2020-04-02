@@ -116,6 +116,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
                 data_type == "TEXT" {
                 data_type = "String"
             } else if data_type == "DATE" ||
+                data_type == "TIMESTAMP"
                 data_type == "DATETIME" {
                 data_type = "Time"
                 scalar = true
