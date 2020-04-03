@@ -108,10 +108,13 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
             if  data_type == "VARCHAR" ||
                 data_type == "VARCHAR2" ||
+                data_type == "NVARCHAR" ||
+                data_type == "NVARCHAR2" ||
                 data_type == "CHAR" ||
                 data_type == "TEXT" {
                 data_type = "string"
             } else if data_type == "DATE" ||
+                strings.Contains(data_type, "TIMESTAMP") ||
                 data_type == "DATETIME" {
                 data_type = "time"
             } else if data_type == "BOOLEAN" {
