@@ -4,6 +4,7 @@ import (
     "flag"
     "log"
     "os"
+    "regexp"
     "strings"
     "strconv"
     "database/sql"
@@ -64,6 +65,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
     var query string
     var scalar bool
 
+    var re = regexp.MustCompile(`: (.*)`)
+
     if *motor == "godror" {
         // oracle
         query = `SELECT COLUMN_NAME, DATA_TYPE, DATA_SCALE, NULLABLE FROM ALL_TAB_COLUMNS WHERE UPPER(TABLE_NAME)=UPPER(:1) AND UPPER(OWNER)=UPPER(:2) ORDER BY COLUMN_ID`
@@ -85,16 +88,17 @@ func makeSchemas(db *sql.DB, entities []string) string {
 
     for _, x := range entities {
         entity := strings.TrimSpace(x)
-	entityTitle := strings.Title(strings.ToLower(entity))
+        entityTitle := strings.Title(strings.ToLower(entity))
         rows, err := stm.Query(entity, *schema)
         if err != nil {
             log.Fatalf("Query error: %s",err)
         }
         defer rows.Close()
 
-	type_query    += "    get"    + entityTitle + "(filter: Filter" + entityTitle + "): [" + entityTitle + "]\n"
-	type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
-	type_mutation += "    update" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): "  + entityTitle + "\n"
+        type_query    += "    get"    + entityTitle + "(filter: Filter" + entityTitle + "): " + entityTitle + "\n"
+        type_query    += "    getAll" + entityTitle + "(filter: FilterAll" + entityTitle + "): [" + entityTitle + "]\n"
+        type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): "  + entityTitle + "\n"
+        type_mutation += "    update" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): "  + entityTitle + "\n"
 
         data += "type " + entityTitle + " {\n"
         for rows.Next() {
@@ -144,6 +148,9 @@ func makeSchemas(db *sql.DB, entities []string) string {
     data += data2
     data2 = strings.Replace(data2, "input In", "input Filter", -1)
     data2 = strings.Replace(data2, "!", "", -1)
+    data += data2
+    data2 = strings.Replace(data2, "input Filter", "input FilterAll", -1)
+    data2 = re.ReplaceAllString(data2, `: [$1]`)
     data += data2
 
     data += "type Query {\n" + type_query + "}\n\n"
