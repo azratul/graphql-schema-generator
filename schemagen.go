@@ -95,12 +95,12 @@ func makeSchemas(db *sql.DB, entities []string) string {
 		}
 		defer rows.Close()
 
-		type_query += "    getRow" + entityTitle + "(filter: Filter" + entityTitle + "): " + entityTitle + "\n"
-		type_query += "    getRows" + entityTitle + "(filter: FilterAll" + entityTitle + ", pagination: Pagination): [" + entityTitle + "]\n"
-		type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): " + entityTitle + "\n"
-		type_mutation += "    update" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): " + entityTitle + "\n"
+		type_query += "\t\"\"\"[Add some description]\"\"\"\n\tgetRow" + entityTitle + "(filter: Filter" + entityTitle + "): " + entityTitle + "\n"
+		type_query += "\t\"\"\"[Add some description]\"\"\"\n\tgetRows" + entityTitle + "(filter: FilterAll" + entityTitle + ", pagination: Pagination): [" + entityTitle + "]\n"
+		type_mutation += "\t\"\"\"[Add some description]\"\"\"\n\tcreate" + entityTitle + "(input: In" + entityTitle + "): " + entityTitle + "\n"
+		type_mutation += "\t\"\"\"[Add some description]\"\"\"\n\tupdate" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): " + entityTitle + "\n"
 
-		data += "type " + entityTitle + " {\n"
+		data += "\"\"\"[Add some description]\"\"\"\ntype " + entityTitle + " {\n"
 		for rows.Next() {
 			var column_name string
 			var data_type string
@@ -140,7 +140,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 				data_type += "!"
 			}
 
-			data += "    " + strings.ToLower(column_name) + ": " + data_type + "\n"
+			data += "\t\"\"\"[Add some description]\"\"\"\n\t" + strings.ToLower(column_name) + ": " + data_type + "\n"
 		}
 		data += "}\n\n"
 	}
@@ -153,7 +153,7 @@ func makeSchemas(db *sql.DB, entities []string) string {
 	data2 = re.ReplaceAllString(data2, `: [$1]`)
 	data += data2
 
-	data += "input Pagination {\n\tpageNumber: Int!\n\tpageSize: Int!\n}\n\n"
+	data += "\"\"\"[Add some description]\"\"\"\ninput Pagination {\n\t\"\"\"[Add some description]\"\"\"\n\tpageNumber: Int!\n\t\"\"\"[Add some description]\"\"\"\n\tpageSize: Int!\n}\n\n"
 
 	data += "type Query {\n" + type_query + "}\n\n"
 	data += "type Mutation {\n" + type_mutation + "}\n\n"
