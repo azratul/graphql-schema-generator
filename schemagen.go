@@ -95,8 +95,8 @@ func makeSchemas(db *sql.DB, entities []string) string {
 		}
 		defer rows.Close()
 
-		type_query += "    get" + entityTitle + "(filter: Filter" + entityTitle + ", pagination: Pagination): " + entityTitle + "\n"
-		type_query += "    getAll" + entityTitle + "(filter: FilterAll" + entityTitle + ", pagination: Pagination): [" + entityTitle + "]\n"
+		type_query += "    getRow" + entityTitle + "(filter: Filter" + entityTitle + "): " + entityTitle + "\n"
+		type_query += "    getRows" + entityTitle + "(filter: FilterAll" + entityTitle + ", pagination: Pagination): [" + entityTitle + "]\n"
 		type_mutation += "    create" + entityTitle + "(input: In" + entityTitle + "): " + entityTitle + "\n"
 		type_mutation += "    update" + entityTitle + "(input: Filter" + entityTitle + ", filter: Filter" + entityTitle + "): " + entityTitle + "\n"
 
